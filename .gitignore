@@ -23,3 +23,5 @@ cmake-*/
 
 # Project specific
 .coin-or/
+
+build_cmake/

@@ -231,3 +231,13 @@
 
 /* Version number of package */
 #define VERSION "@VERSION@"
+
+#ifndef IPOPTLIB_EXPORT
+#ifdef _WIN32
+/* assuming we build an Ipopt DLL */
+#define IPOPTLIB_EXPORT __declspec(dllexport)
+#else
+#define IPOPTLIB_EXPORT
+#endif
+#endif
+//#define IPOPTLIB_EXPORT

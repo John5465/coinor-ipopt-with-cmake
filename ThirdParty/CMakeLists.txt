@@ -10,11 +10,11 @@ if (APPLE)
     set(CMAKE_CXX_ARCHIVE_FINISH "<CMAKE_RANLIB> -no_warning_for_no_symbols -c <TARGET>")
 endif()
 
-option(COIN_ENABLE_DOWNLOAD_MUMPS        "Enable the download / compilation of Mumps" ON)
-option(COIN_ENABLE_DOWNLOAD_METIS        "Enable the download / compilation of Metis" ON)
+option(COIN_ENABLE_DOWNLOAD_MUMPS        "Enable the download / compilation of Mumps" OFF)
+option(COIN_ENABLE_DOWNLOAD_METIS        "Enable the download / compilation of Metis" OFF)
 option(COIN_ENABLE_DOWNLOAD_ASL          "Enable the download / compilation of Ampl Solver Library" OFF)
 option(COIN_ENABLE_DOWNLOAD_MINGW_LAPACK "Enable the download / compilation of MinGW compiled Blas / Lapack" OFF)
-option(COIN_ENABLE_DOWNLOAD_LAPACK       "Enable the download / compilation of Blas / Lapack" ON)
+option(COIN_ENABLE_DOWNLOAD_LAPACK       "Enable the download / compilation of Blas / Lapack" OFF)
 option(COIN_ENABLE_DOWNLOAD_CLAPACK      "Enable the download / compilation of CBlas / CLapack" OFF)
 option(COIN_ENABLE_DOWNLOAD_MINLPLIB     "Enable the download / run of minlp benchmark" OFF)
 option(COIN_USE_SYSTEM_LAPACK            "Enable the use of the system Lapack" OFF)
@@ -275,6 +275,7 @@ if (COIN_ENABLE_DOWNLOAD_METIS)
     ExternalProject_Add(EP_Metis
             PREFIX            ${METIS_InstallDir}
             URL               ${METIS_URL}
+            DOWNLOAD_EXTRACT_TIMESTAMP TRUE   # 添加这一行
             UPDATE_COMMAND    ""
             PATCH_COMMAND     ""
             CONFIGURE_COMMAND ""
@@ -333,6 +334,7 @@ if (COIN_ENABLE_DOWNLOAD_MUMPS)
             PREFIX            ${MUMPS_InstallDir}
             DEPENDS           ${MUMPS_DEPENDS}
             URL               ${MUMPS_URL}
+            DOWNLOAD_EXTRACT_TIMESTAMP TRUE   # 添加这一行
             UPDATE_COMMAND    ""
             PATCH_COMMAND     ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists_mumps.txt ${MUMPS_InstallDir}/src/EP_Mumps/CMakeLists.txt
             #		                     && ${CMAKE_COMMAND} -E chdir ${MUMPS_InstallDir}/src/EP_Mumps ${PATCH_EXECUTABLE} -p1 < ${CMAKE_CURRENT_SOURCE_DIR}/mumps_mpi.patch
@@ -593,7 +595,7 @@ macro(add_library_mod _target)
     add_library (${_target} ${ARGN})
 
     if (COIN_ENABLE_DOWNLOAD_MUMPS)
-        add_dependencies(${_target} EP_Mumps)
+        #add_dependencies(${_target} EP_Mumps)
     endif ()
     if (COIN_ENABLE_DOWNLOAD_METIS)
         add_dependencies(${_target} EP_Metis)

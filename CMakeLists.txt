@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8...3.18)
 cmake_policy(SET CMP0075 NEW)
 project(IpOpt)
 
@@ -33,8 +33,8 @@ set(COIN_HAS_WSMP_INCLUDE_PATH "None" CACHE PATH "The WSMP linear solver include
 set(COIN_HAS_WSMP_LIBRARY_PATH "None" CACHE PATH "The WSMP linear solver absolute library Path")
 
 # Compilation options
-option(ENABLE_SHARED_LIBRARIES       "Build libraries as shared libraries" OFF)
-option(COIN_COMPILE_STATIC           "Activate the static linking" ON)
+option(ENABLE_SHARED_LIBRARIES       "Build libraries as shared libraries" ON)
+option(COIN_COMPILE_STATIC           "Activate the static linking" OFF)
 option(COIN_COMPILE_COVERAGE         "Activate the code coverage compilation" OFF)
 option(COIN_COMPILE_PROFILE          "Activate the code profiling compilation" OFF)
 option(COIN_COMPILE_PROFILE_VALGRIND "Activate the code profiling compilation for valgrind" OFF)
@@ -53,6 +53,11 @@ option(COIN_ENABLE_COMPAT            "Enable libc compatibility" OFF)   # Do not
 set(COIN_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH "The Cbc Path")
 
 set(COIN_COVERAGE_CTEST_LABEL "SAMPLE" CACHE PATH "The label sent to ctest during coverage")
+
+set(COIN_HAS_MUMPS ON)
+set(CMAKE_Fortran_COMPILER "C:/Program Files (x86)/Intel/oneAPI/compiler/latest/bin/ifx.exe")
+set(COIN_HAS_MUMPS_INCLUDE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/extra/mumps/include)
+#set(COIN_HAS_MUMPS_LIBRARY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/extra/mumps/lib)
 
 mark_as_advanced(ENABLE_SHARED_LIBRARIES
         COIN_ENABLE_READLINE
@@ -184,43 +189,43 @@ endif ()
 
 # Check for MKL
 if (COIN_HAS_MKL)
-    find_package(MKL)
+    #find_package(MKL)
 
-    if (MKL_FOUND)
-        message(STATUS "MKL library found")
-    else ()
-        message(STATUS "MKL library not found")
-    endif ()
+    #if (MKL_FOUND)
+    #    message(STATUS "MKL library found")
+    #else ()
+    #    message(STATUS "MKL library not found")
+    #endif ()
 
-    # Copy libiomp5md.dll in the build directory
-    if (WIN32)
-        if (HAVE_64_BIT)
-            set(MKL_DLL_DIR ${MKL_ROOT}/bin/intel64)
-        else ()
-            set(MKL_DLL_DIR ${MKL_ROOT}/bin/ia32)
-        endif ()
+    ## Copy libiomp5md.dll in the build directory
+    #if (WIN32)
+    #    if (HAVE_64_BIT)
+    #        set(MKL_DLL_DIR ${MKL_ROOT}/bin/intel64)
+    #    else ()
+    #        set(MKL_DLL_DIR ${MKL_ROOT}/bin/ia32)
+    #    endif ()
 
-        execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/
-                COMMAND ${CMAKE_COMMAND} -E copy ${MKL_DLL_DIR}/libiomp5md.dll ${CMAKE_BINARY_DIR}/bin/
-                COMMAND ${CMAKE_COMMAND} -E echo "Copying ${MKL_DLL_DIR}/libiomp5md.dll into ${CMAKE_BINARY_DIR}/bin/")
-    endif ()
+    #    execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/
+    #            COMMAND ${CMAKE_COMMAND} -E copy ${MKL_DLL_DIR}/libiomp5md.dll ${CMAKE_BINARY_DIR}/bin/
+    #            COMMAND ${CMAKE_COMMAND} -E echo "Copying ${MKL_DLL_DIR}/libiomp5md.dll into ${CMAKE_BINARY_DIR}/bin/")
+    #endif ()
 
-    set(COIN_MKL_LIBS "${MKL_LIBRARIES}")
-    if (WIN32)
-        set(COIN_MKL_LIBS ${COIN_MKL_LIBS} mkl_intel_thread libiomp5md)
-    else ()
-        set(COIN_MKL_LIBS ${COIN_MKL_LIBS} mkl_gnu_thread gomp dl)
-    endif ()
+    #set(COIN_MKL_LIBS "${MKL_LIBRARIES}")
+    #if (WIN32)
+    #    set(COIN_MKL_LIBS ${COIN_MKL_LIBS} mkl_intel_thread libiomp5md)
+    #else ()
+    #    set(COIN_MKL_LIBS ${COIN_MKL_LIBS} mkl_gnu_thread gomp dl)
+    #endif ()
 
-    include_directories(${MKL_INCLUDE_DIRS})
+    #include_directories(${MKL_INCLUDE_DIRS})
 
-    if (HAVE_64_BIT)
-        link_directories(${MKLROOT_PATH}/mkl/lib/intel64)
-    else ()
-        link_directories(${MKLROOT_PATH}/mkl/lib/ia32)
-    endif ()
+    #if (HAVE_64_BIT)
+    #    link_directories(${MKLROOT_PATH}/mkl/lib/intel64)
+    #else ()
+    #    link_directories(${MKLROOT_PATH}/mkl/lib/ia32)
+    #endif ()
 
-    set(COIN_HAS_LAPACK ON CACHE BOOL "Use Intel MKL library (requires Intel compiler)")
+    #set(COIN_HAS_LAPACK ON CACHE BOOL "Use Intel MKL library (requires Intel compiler)")
 endif ()
 
 # Check some directories
@@ -572,6 +577,10 @@ check_function_exists(vsnprintf  HAVE_VSNPRINTF)
 check_function_exists(_snprintf  HAVE__SNPRINTF)
 check_function_exists(_vsnprintf HAVE__VSNPRINTF)
 
+if (MSVC)
+    set(HAVE_RAND 1)
+endif ()
+
 if (WIN32)
     # snprintf not correctly detected under Visual Studio.
     # Hack: we just activate snprintf under Windows.
@@ -741,5 +750,5 @@ message(STATUS "${color_cyan}Compilation definitions:${color_reset} ${ALL_DEFS}"
 # Install part
 #
 
-install(FILES LICENSE README
-        DESTINATION share/coin/doc/Ipopt/)
+#install(FILES LICENSE README
+#        DESTINATION share/coin/doc/Ipopt/)
