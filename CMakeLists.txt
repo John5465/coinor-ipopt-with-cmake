@@ -39,7 +39,7 @@ option(COIN_COMPILE_COVERAGE         "Activate the code coverage compilation" OF
 option(COIN_COMPILE_PROFILE          "Activate the code profiling compilation" OFF)
 option(COIN_COMPILE_PROFILE_VALGRIND "Activate the code profiling compilation for valgrind" OFF)
 option(COIN_COMPILE_LTO              "Activate the whole program optimization" OFF)  # GCC macOS does not support this
-option(COIN_HAS_MKL                  "Use Intel MKL library (requires Intel compiler)" OFF)
+option(COIN_HAS_MKL                  "Use Intel MKL library (requires Intel compiler)" ON)
 option(COIN_USE_FAST_CODE            "Use intensive optimization flags" ON)
 option(COIN_COMPILE_WARNINGS         "Activate a set of warning options" OFF)
 option(COIN_COMPILE_CXX11            "Activate C++11 compilation" ON)
@@ -57,7 +57,7 @@ set(COIN_COVERAGE_CTEST_LABEL "SAMPLE" CACHE PATH "The label sent to ctest durin
 set(COIN_HAS_MUMPS ON)
 set(CMAKE_Fortran_COMPILER "C:/Program Files (x86)/Intel/oneAPI/compiler/latest/bin/ifx.exe")
 set(COIN_HAS_MUMPS_INCLUDE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/extra/mumps/include)
-#set(COIN_HAS_MUMPS_LIBRARY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/extra/mumps/lib)
+set(COIN_HAS_MUMPS_LIBRARY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/extra/mumps/lib)
 
 mark_as_advanced(ENABLE_SHARED_LIBRARIES
         COIN_ENABLE_READLINE
@@ -108,9 +108,9 @@ if (IPOPT_ENABLE_INEXACT AND NOT (IPOPT_HAS_PARDISO OR IPOPT_HAS_PARDISO_MKL OR 
     message(FATAL_ERROR "Error: Inexact solver is only available through MKL. Please activate the MKL")
 endif ()
 
-if (NOT IPOPT_ENABLE_INEXACT)
-    message(WARNING "If you have MKL, you can activate IPOPT_ENABLE_INEXACT")
-endif ()
+#if (NOT IPOPT_ENABLE_INEXACT)
+#    message(WARNING "If you have MKL, you can activate IPOPT_ENABLE_INEXACT")
+#endif ()
 
 #------------------------------------------------------------
 # Detect 64 bits
@@ -189,43 +189,48 @@ endif ()
 
 # Check for MKL
 if (COIN_HAS_MKL)
-    #find_package(MKL)
+    #set(ENV{MKLROOT} "C:/Program Files (x86)/Intel/oneAPI/mkl/latest")
 
-    #if (MKL_FOUND)
-    #    message(STATUS "MKL library found")
-    #else ()
-    #    message(STATUS "MKL library not found")
-    #endif ()
+    find_package(MKL REQUIRED COMPONENTS mkl_rt
+        HINTS "C:/Program Files (x86)/Intel/oneAPI/mkl/latest")
 
-    ## Copy libiomp5md.dll in the build directory
-    #if (WIN32)
-    #    if (HAVE_64_BIT)
-    #        set(MKL_DLL_DIR ${MKL_ROOT}/bin/intel64)
-    #    else ()
-    #        set(MKL_DLL_DIR ${MKL_ROOT}/bin/ia32)
-    #    endif ()
+    if (MKL_FOUND)
+        message(STATUS "MKL library found")
+    else ()
+        message(STATUS "MKL library not found")
+    endif ()
 
-    #    execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/
-    #            COMMAND ${CMAKE_COMMAND} -E copy ${MKL_DLL_DIR}/libiomp5md.dll ${CMAKE_BINARY_DIR}/bin/
-    #            COMMAND ${CMAKE_COMMAND} -E echo "Copying ${MKL_DLL_DIR}/libiomp5md.dll into ${CMAKE_BINARY_DIR}/bin/")
-    #endif ()
+    # Copy libiomp5md.dll in the build directory
+    if (WIN32)
+        if (HAVE_64_BIT)
+            set(MKL_DLL_DIR ${MKL_ROOT}/bin/intel64)
+        else ()
+            set(MKL_DLL_DIR ${MKL_ROOT}/bin/ia32)
+        endif ()
+        set(MKL_DLL_DIR "C:/Program Files (x86)/Intel/oneAPI/compiler/2025.3/bin")
 
-    #set(COIN_MKL_LIBS "${MKL_LIBRARIES}")
-    #if (WIN32)
-    #    set(COIN_MKL_LIBS ${COIN_MKL_LIBS} mkl_intel_thread libiomp5md)
-    #else ()
-    #    set(COIN_MKL_LIBS ${COIN_MKL_LIBS} mkl_gnu_thread gomp dl)
-    #endif ()
+        execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/
+                COMMAND ${CMAKE_COMMAND} -E copy ${MKL_DLL_DIR}/libiomp5md.dll ${CMAKE_BINARY_DIR}/bin/
+                COMMAND ${CMAKE_COMMAND} -E echo "Copying ${MKL_DLL_DIR}/libiomp5md.dll into ${CMAKE_BINARY_DIR}/bin/")
+    endif ()
 
-    #include_directories(${MKL_INCLUDE_DIRS})
+    set(COIN_MKL_LIBS "${MKL_LIBRARIES}")
+    if (WIN32)
+        set(COIN_MKL_LIBS ${COIN_MKL_LIBS} mkl_intel_thread libiomp5md)
+    else ()
+        set(COIN_MKL_LIBS ${COIN_MKL_LIBS} mkl_gnu_thread gomp dl)
+    endif ()
+
+    include_directories(${MKL_INCLUDE_DIRS})
 
     #if (HAVE_64_BIT)
     #    link_directories(${MKLROOT_PATH}/mkl/lib/intel64)
     #else ()
     #    link_directories(${MKLROOT_PATH}/mkl/lib/ia32)
     #endif ()
+    link_directories(${MKL_ROOT}/lib)
 
-    #set(COIN_HAS_LAPACK ON CACHE BOOL "Use Intel MKL library (requires Intel compiler)")
+    set(COIN_HAS_LAPACK ON CACHE BOOL "Use Intel MKL library (requires Intel compiler)")
 endif ()
 
 # Check some directories

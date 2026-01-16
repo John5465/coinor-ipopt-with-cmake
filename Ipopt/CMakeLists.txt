@@ -241,14 +241,14 @@ set (IPOPT_SRC_LINALG_TMATRICES ${Ipopt_DIR}/src/LinAlg/TMatrices/IpGenTMatrix.c
 
 set (IPOPT_SRC_LIST ${IPOPT_SRC_ALGORITHM_LIST}
         ${IPOPT_SRC_ALGORITHM_LINEARSOLVERS_LIST}
-        #${IPOPT_SRC_APPS_CUTERINTERFACE_LIST}
-        #${IPOPT_SRC_APPS_AMPLSOLVER_LIST}
-        #${IPOPT_SRC_CONTRIB_CGPENALTY_LIST}
-        #${IPOPT_SRC_CONTRIB_LINEARSOLVERLOADER_LIST}
+        ${IPOPT_SRC_APPS_CUTERINTERFACE_LIST}
+        ${IPOPT_SRC_APPS_AMPLSOLVER_LIST}
+        ${IPOPT_SRC_CONTRIB_CGPENALTY_LIST}
+        ${IPOPT_SRC_CONTRIB_LINEARSOLVERLOADER_LIST}
         ${IPOPT_SRC_COMMON_LIST}
-        #${IPOPT_SRC_INTERFACES_LIST}
+        ${IPOPT_SRC_INTERFACES_LIST}
         ${IPOPT_SRC_LINALG_LIST}
-        #${IPOPT_SRC_LINALG_TMATRICES}
+        ${IPOPT_SRC_LINALG_TMATRICES}
         )
 
 if (IPOPT_ENABLE_INEXACT)
@@ -298,16 +298,8 @@ if (IPOPT_HAS_AMPL)
 endif ()
 
 if (ENABLE_SHARED_LIBRARIES)
-    message(STATUS "---------------------------")
-    message(STATUS "---------------------------")
-    message(STATUS "---------------------------")
-    message(STATUS "COIN_HAS_MKL = ${COIN_HAS_MKL}")
-    message(STATUS "---------------------------")
-    message(STATUS "---------------------------")
-    message(STATUS "---------------------------")
     add_library_mod(libipopt SHARED ${IPOPT_SRC_LIST})
-    #target_link_libraries(libipopt dmumps.lib)
-    target_link_options(libipopt PRIVATE "/NODEFAULTLIB:mkl_core.lib")
+    target_link_libraries(libipopt mkl_rt.lib dmumps.lib)
 else ()
     add_library_mod(libipopt STATIC ${IPOPT_SRC_LIST})
     target_link_libraries(libipopt quadmath)
