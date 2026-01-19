@@ -34,7 +34,7 @@ set(COIN_HAS_WSMP_LIBRARY_PATH "None" CACHE PATH "The WSMP linear solver absolut
 
 # Compilation options
 option(ENABLE_SHARED_LIBRARIES       "Build libraries as shared libraries" ON)
-option(COIN_COMPILE_STATIC           "Activate the static linking" OFF)
+option(COIN_COMPILE_STATIC           "Activate the static linking" ON)
 option(COIN_COMPILE_COVERAGE         "Activate the code coverage compilation" OFF)
 option(COIN_COMPILE_PROFILE          "Activate the code profiling compilation" OFF)
 option(COIN_COMPILE_PROFILE_VALGRIND "Activate the code profiling compilation for valgrind" OFF)
@@ -207,7 +207,8 @@ if (COIN_HAS_MKL)
         else ()
             set(MKL_DLL_DIR ${MKL_ROOT}/bin/ia32)
         endif ()
-        set(MKL_DLL_DIR "C:/Program Files (x86)/Intel/oneAPI/compiler/2025.3/bin")
+        set(MKL_COMPILER_DIR "C:/Program Files (x86)/Intel/oneAPI/compiler/latest/")
+        set(MKL_DLL_DIR "${MKL_COMPILER_DIR}/bin")
 
         execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/
                 COMMAND ${CMAKE_COMMAND} -E copy ${MKL_DLL_DIR}/libiomp5md.dll ${CMAKE_BINARY_DIR}/bin/
@@ -229,6 +230,7 @@ if (COIN_HAS_MKL)
     #    link_directories(${MKLROOT_PATH}/mkl/lib/ia32)
     #endif ()
     link_directories(${MKL_ROOT}/lib)
+    link_directories(${MKL_COMPILER_DIR}/lib)
 
     set(COIN_HAS_LAPACK ON CACHE BOOL "Use Intel MKL library (requires Intel compiler)")
 endif ()
