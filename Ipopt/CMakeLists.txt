@@ -299,7 +299,7 @@ endif ()
 
 if (ENABLE_SHARED_LIBRARIES)
     add_library_mod(libipopt SHARED ${IPOPT_SRC_LIST})
-    target_link_libraries(libipopt mkl_rt.lib dmumps.lib mumps_common.lib mpiseq.lib pord.lib)
+    target_link_libraries(libipopt mkl_rt.lib dmumps.lib mumps_common.lib mpiseq.lib pord.lib metis.lib GKlib.lib)
 else ()
     add_library_mod(libipopt STATIC ${IPOPT_SRC_LIST})
     target_link_libraries(libipopt quadmath)
